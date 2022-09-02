@@ -25,30 +25,26 @@ const CustomButton: React.FC<ButtonProps> = ({ children, buttonFor }) => {
 interface TodoItemType {
   title: String;
   id: Number;
-  isCompleted: boolean
 }
 
 interface TodoItemProps extends TodoItemType {
   handleDelete: (id: Number) => void;
   selectItemToEdit: (item: TodoItemType) => void;
-  handleStrike: (id: Number) => void;
 }
 
 const TodoItem: React.FC<TodoItemProps> = ({
   title,
   id,
-  isCompleted,
   handleDelete,
   selectItemToEdit,
-  handleStrike
 }) => {
   return (
     <div className="flex w-[100%] items-center justify-between bg-pink-200 py-2 px-4 rounded-xl">
-      <h1 className={`text-[1.2rem] ${isCompleted && 'line-through'}`}>{title}</h1>
+      <h1 className="text-[1.2rem]">{title}</h1>
       <div className="space-x-4 flex items-center">
-        <button onClick={() => selectItemToEdit({ title, id, isCompleted })}><i className="text-[blue] text-[1.2rem] fa fa-edit"></i></button>
+        <button onClick={() => selectItemToEdit({ title, id })}><i className="text-[blue] text-[1.2rem] fa fa-edit"></i></button>
         <button onClick={() => handleDelete(id)}><i className="text-[red] text-[1.2rem] fa fa-trash"></i></button>
-        <button onClick={() => handleStrike(id)}><i className="text-[orange] text-[1.2rem] fa fa-strikethrough"></i></button>
+        <button onClick={() => handleDelete(id)}><i className="text-[orange] text-[1.2rem] fa fa-strikethrough"></i></button>
       </div>
     </div>
   );
@@ -65,7 +61,7 @@ const TodoItemEdit: React.FC<TodoItemEditProps> = ({
   title,
   saveEditItem,
   cancelEdit,
-  handleEditValueChange
+  handleEditValueChange,
 }) => {
   return (
     <div className="flex w-[100%] items-center justify-between bg-[blue] py-2 px-4 rounded-xl">
@@ -90,8 +86,7 @@ interface TodoListProps {
   cancelEdit: () => void;
   selectItemToEdit: (item: TodoItemType) => void;
   handleEditValueChange: React.FormEventHandler<HTMLInputElement>;
-  itemToEdit: TodoItemType | null,
-  handleStrike: (id: Number) => void;
+  itemToEdit: TodoItemType | null
 }
 
 const TodoList: React.FC<TodoListProps> = ({
@@ -101,28 +96,28 @@ const TodoList: React.FC<TodoListProps> = ({
   cancelEdit,
   selectItemToEdit,
   handleEditValueChange,
-  itemToEdit,
-  handleStrike
+  itemToEdit
 }) => {
   return (
     <div className="w-[100%] space-y-5 flex flex-col items-center justify-center mt-5">
       {items.map((item: TodoItemType) => (
         <div key={item.id.toString()} className="w-[80%]">
-          {
-            itemToEdit?.id !== item.id && <TodoItem
-              selectItemToEdit={selectItemToEdit}
-              handleDelete={handleDelete}
-              title={item.title}
-              id={item.id} isCompleted={item.isCompleted} handleStrike={handleStrike} />
-          }
-          {
-            itemToEdit?.id === item.id && <TodoItemEdit
-              cancelEdit={cancelEdit}
-              saveEditItem={saveEditItem}
-              title={itemToEdit?.title}
-              handleEditValueChange={handleEditValueChange}
-            />
-          }
+        { 
+          itemToEdit?.id !== item.id &&  <TodoItem
+            selectItemToEdit={selectItemToEdit}
+            handleDelete={handleDelete}
+            title={item.title}
+            id={item.id}
+          />
+        }
+        { 
+          itemToEdit?.id === item.id &&  <TodoItemEdit
+            cancelEdit={cancelEdit}
+            saveEditItem={saveEditItem}
+            title={itemToEdit?.title}
+            handleEditValueChange={handleEditValueChange}
+          />
+        }
         </div>
       ))}
     </div>
@@ -140,8 +135,8 @@ function App() {
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    if (!value) return
-    setList((items) => [...items, { title: value, id: Math.random(), isCompleted: false }]);
+    if(!value) return
+    setList((items) => [...items, { title: value, id: Math.random() }]);
     setValue("")
   };
 
@@ -150,7 +145,7 @@ function App() {
 
   const saveEditItem = () => {
     if (!itemToEdit) return;
-    if (!itemToEdit.title) return
+    if(!itemToEdit.title) return
     setList((items) =>
       items.map((item) => {
         if (item.id === itemToEdit.id) {
@@ -177,16 +172,6 @@ function App() {
     });
   };
 
-  const handleStrike = (id: Number) => {
-    const mapped = list.map(item => {
-      if (item.id === id) {
-        item.isCompleted = !item.isCompleted
-      }
-      return item
-    })
-    setList(mapped)
-  }
-
   return (
     <div className="h-[100vh] flex flex-col items-center justify-center">
       <div className="p-5 min-h-[50%] min-w-[50%] flex flex-col items-center border-2 ">
@@ -208,7 +193,6 @@ function App() {
           handleDelete={handleDelete}
           items={list}
           itemToEdit={itemToEdit}
-          handleStrike={handleStrike}
         />
       </div>
     </div>
@@ -216,4 +200,3 @@ function App() {
 }
 
 export default App;
-
